@@ -18,8 +18,8 @@
   --faucet-purple: #a855f7;
   --faucet-purple-glow: rgba(168, 85, 247, 0.4);
   
-  --text-main: #e2e8f0;
-  --text-muted: #8493a8;
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
   --text-bright: #ffffff;
   
   --font-hud: 'Share Tech Mono', monospace;
@@ -295,4 +295,32 @@ body {
 .bg-purple-950 {
   background-color: #3b0769;
 }
+
+/* High Contrast UI Readability Overrides */
+.text-slate-400 {
+  color: #cbd5e1 !important; /* Bright Slate 300 for high readability */
+}
+.text-slate-500 {
+  color: #94a3b8 !important; /* Bright Slate 400 */
+}
+.bg-slate-950\/80 {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+}
+.bg-slate-900\/60 {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+}
+.bg-slate-900 {
+  background-color: #0f172a !important;
+}
+.border-slate-800 {
+  border-color: rgba(100, 116, 139, 0.5) !important; /* Bright Slate 500 border */
+}
+.border-slate-850 {
+  border-color: rgba(148, 163, 184, 0.4) !important;
+}
+input, select, textarea {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
 
