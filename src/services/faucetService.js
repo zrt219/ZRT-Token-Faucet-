@@ -30,6 +30,15 @@ class FaucetService {
     this.simulationMode = false;
   }
 
+  // Helper to find real MetaMask provider even when multiple Web3 wallets are injected
+  getMetaMaskProvider() {
+    if (typeof window === 'undefined' || !window.ethereum) return null;
+    if (window.ethereum.providers) {
+      return window.ethereum.providers.find(p => p.isMetaMask) || null;
+    }
+    return window.ethereum.isMetaMask ? window.ethereum : null;
+  }
+
   // 1. Initialize Connection to XRPL Testnet & EVM Provider
   async setupFaucetAccounts() {
     if (this.isConnected && this.client) return true;
@@ -110,12 +119,13 @@ class FaucetService {
 
   // 2. Connect MetaMask & switch network to XRPL EVM Sidechain Testnet
   async connectMetaMask() {
-    if (typeof window.ethereum === 'undefined') {
+    const providerObj = this.getMetaMaskProvider();
+    if (!providerObj) {
       throw new Error('MetaMask is not installed. Please install MetaMask extension!');
     }
 
-    // Request accounts from MetaMask extension
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    // Request accounts using browser provider
+    const accounts = await providerObj.request({ method: 'eth_requestAccounts' });
     if (!accounts || accounts.length === 0) {
       throw new Error('No accounts selected in MetaMask');
     }
@@ -123,34 +133,24 @@ class FaucetService {
     const userAddr = accounts[0];
     const chainIdHex = '0x161c28'; // 1449000 in hexadecimal
 
-    // Switch or Add network to XRPL EVM Testnet (Chain ID 1449000 / 0x161c28)
+    // Direct addition request (Peersyst standard: handles add & switch smoothly)
     try {
-      await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: chainIdHex }]
+      await providerObj.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: chainIdHex,
+          chainName: 'XRPL EVM Sidechain Testnet',
+          nativeCurrency: {
+            name: 'XRP',
+            symbol: 'XRP',
+            decimals: 18
+          },
+          rpcUrls: ['https://rpc.testnet.xrplevm.org'],
+          blockExplorerUrls: ['https://explorer.testnet.xrplevm.org']
+        }]
       });
-    } catch (switchError) {
-      // Error code 4902 indicates chain has not been added to MetaMask
-      if (switchError.code === 4902 || switchError.message?.includes('Unrecognized chain')) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: chainIdHex,
-              chainName: 'XRPL EVM Sidechain Testnet',
-              nativeCurrency: {
-                name: 'XRP',
-                symbol: 'XRP',
-                decimals: 18
-              },
-              rpcUrls: ['https://rpc.testnet.xrplevm.org'],
-              blockExplorerUrls: ['https://explorer.testnet.xrplevm.org']
-            }]
-          });
-        } catch (addErr) {
-          console.warn("Chain add notice:", addErr.message);
-        }
-      }
+    } catch (err) {
+      console.warn("MetaMask network configuration notice:", err.message);
     }
 
     return userAddr;
