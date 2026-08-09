@@ -1,16 +1,14 @@
-# React + Vite
+# ZRT XRP Faucet
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A state-of-the-art XRPL Testnet Token Faucet & Top-Up Portal for **ZRT (Zephyr Radiant Token)** and XRP. Built with React, Vite, Tailwind CSS, and `xrpl.js`.
 
-Currently, two official plugins are available:
+## Features
+- **Vault Reserves Monitor**: Real-time display of Issuer & Faucet Vault balances.
+- **Top-Up Dispensary**: Disburse ZRT tokens directly to any XRPL Testnet address.
+- **1-Click Playground Account Generator**: Automatically generates, funds, and configures trustlines for instant testing.
+- **HTML5 Canvas Flow Vector**: Live animated vector flow representing network transactions.
+- **Dynamic Trustline Verification**: Instant status checks for target account format and trustline eligibility.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Live Deployment
+- **Vercel Production**: [https://zrt-xrp-faucet.vercel.app](https://zrt-xrp-faucet.vercel.app)
+- **GitHub Repository**: [https://github.com/zrt219/ZRT-Token-Faucet-](https://github.com/zrt219/ZRT-Token-Faucet-)
