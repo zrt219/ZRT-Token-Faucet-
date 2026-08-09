@@ -265,23 +265,23 @@ class FaucetService {
     }
 
     const userAddr = accounts[0];
+    const chainIdHex = '0x161c28'; // 1449000 in hexadecimal
 
-    // Request network switch to XRPL EVM Testnet (Chain ID 1449000 / 0x161240)
+    // Request network switch to XRPL EVM Testnet (Chain ID 1449000 / 0x161c28)
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x161240' }]
+        params: [{ chainId: chainIdHex }]
       });
     } catch (switchError) {
-      // 4902 code means network needs to be added to MetaMask
-      if (switchError.code === 4902 || switchError.message?.includes('Unrecognized chain')) {
+      try {
         await window.ethereum.request({
           method: 'wallet_addEthereumChain',
           params: [{
-            chainId: '0x161240',
-            chainName: 'XRPL EVM Testnet',
+            chainId: chainIdHex,
+            chainName: 'XRPL EVM Sidechain Testnet',
             nativeCurrency: {
-              name: 'XRP Token',
+              name: 'XRP',
               symbol: 'XRP',
               decimals: 18
             },
@@ -289,6 +289,8 @@ class FaucetService {
             blockExplorerUrls: ['https://explorer.realtimelog.org']
           }]
         });
+      } catch (addErr) {
+        console.warn("Chain add warning:", addErr.message);
       }
     }
 

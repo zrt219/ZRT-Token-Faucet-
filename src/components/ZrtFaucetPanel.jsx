@@ -528,7 +528,7 @@ export default function ZrtFaucetPanel() {
               <h3 className="text-slate-400 font-bold mb-1.5">ISSUING METADATA DIRECTIVES</h3>
               <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
                 <div>EVM RPC: <span className="text-purple-400">XRPL EVM TESTNET</span></div>
-                <div>CHAIN ID: <span className="text-purple-400">1449000 (0x161240)</span></div>
+                <div>CHAIN ID: <span className="text-purple-400">1449000 (0x161c28)</span></div>
                 <div>EVM BAL: <span className="text-emerald-400">{balances.evmXrp} XRP</span></div>
                 <div>STATUS: <span className="text-emerald-400 font-bold">ONLINE</span></div>
               </div>
