@@ -146,7 +146,7 @@ export default function EVMContractInspector() {
                 <div className="flex items-center justify-between text-cyan-300 font-bold mt-0.5">
                   <span className="truncate">{activeObj.address}</span>
                   <a 
-                    href={`https://explorer.realtimelog.org/address/${activeObj.address}`}
+                    href={`https://explorer.testnet.xrplevm.org/address/${activeObj.address}`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-purple-400 hover:underline flex items-center gap-1 text-[10px] ml-2"

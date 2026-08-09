@@ -98,10 +98,11 @@ export default function Footer() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h4 style={{ color: '#f1f5f9', fontWeight: '700', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '1px', margin: 0 }}>XRPL Infrastructure</h4>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '8px', color: '#94a3b8' }}>
+            <li><a href="https://xrpl.org/" target="_blank" rel="noreferrer" style={{ color: '#06b6d4', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}>Official XRPL.org <ExternalLink style={{ width: '11px', height: '11px', color: '#06b6d4' }} /></a></li>
+            <li><a href="https://explorer.testnet.xrplevm.org/" target="_blank" rel="noreferrer" style={{ color: '#c084fc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}>EVM Sidechain Explorer <ExternalLink style={{ width: '11px', height: '11px', color: '#c084fc' }} /></a></li>
             <li><a href="https://testnet.xrpl.org/" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>XRPL Testnet Explorer <ExternalLink style={{ width: '11px', height: '11px', color: '#475569' }} /></a></li>
             <li><a href="https://testnet.bithomp.com/" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>Bithomp Explorer <ExternalLink style={{ width: '11px', height: '11px', color: '#475569' }} /></a></li>
             <li><a href="https://rpc.testnet.xrplevm.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>XRPL EVM RPC <ExternalLink style={{ width: '11px', height: '11px', color: '#475569' }} /></a></li>
-            <li><a href="https://explorer.testnet.xrplevm.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>EVM Sidechain Explorer <ExternalLink style={{ width: '11px', height: '11px', color: '#475569' }} /></a></li>
           </ul>
         </div>
 

@@ -7,8 +7,7 @@ import {
   Info,
   ExternalLink,
   Github,
-  Globe,
-  Twitter
+  Globe
 } from 'lucide-react';
 import { faucetService } from '../services/faucetService';
 import { soundEffects } from '../services/audioService';
@@ -23,7 +22,7 @@ export default function SimpleFaucet() {
   const [isConnectingMM, setIsConnectingMM] = useState(false);
   const [metaMaskAddr, setMetaMaskAddr] = useState('');
   const [copied, setCopied] = useState(false);
-  const [status, setStatus] = useState(null); // { type: 'success' | 'error', msg: '' }
+  const [status, setStatus] = useState(null); // { type: 'success' | 'error', msg: '', txHash: '' }
 
   const isValidAddress = /^0x[a-fA-F0-9]{40}$/.test(recipient.trim());
 
@@ -62,7 +61,7 @@ export default function SimpleFaucet() {
     if (result && result.status === 'SUCCESS') {
       setStatus({ 
         type: 'success', 
-        msg: `Transaction Broadcast! Claim of ${claimAmount} XRP validated on-chain.` 
+        msg: `Transaction Broadcast! Claim of ${claimAmount} XRP validated on-chain.`
       });
       confetti({
         particleCount: 150,
@@ -253,8 +252,28 @@ export default function SimpleFaucet() {
             </div>
           </div>
 
-          {/* Quick Ecosystem Links */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', paddingTop: '8px', borderTop: '1px solid #1e293b' }}>
+          {/* Official Resources & Creator Links */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', paddingTop: '12px', borderTop: '1px solid #1e293b' }}>
+            <a 
+              href="https://explorer.testnet.xrplevm.org/" 
+              target="_blank" 
+              rel="noreferrer"
+              style={{ padding: '6px 12px', backgroundColor: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.4)', borderRadius: '20px', color: '#c084fc', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
+            >
+              <ExternalLink style={{ width: '10px', height: '10px' }} />
+              <span>XRPL EVM Explorer</span>
+            </a>
+
+            <a 
+              href="https://xrpl.org/" 
+              target="_blank" 
+              rel="noreferrer"
+              style={{ padding: '6px 12px', backgroundColor: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.4)', borderRadius: '20px', color: '#06b6d4', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
+            >
+              <Globe style={{ width: '10px', height: '10px' }} />
+              <span>Official XRPL.org</span>
+            </a>
+
             <a 
               href="https://x.com/zrt_219" 
               target="_blank" 
@@ -265,26 +284,6 @@ export default function SimpleFaucet() {
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
               </svg>
               <span>@zrt_219</span>
-            </a>
-
-            <a 
-              href="https://www.umattr.ca/" 
-              target="_blank" 
-              rel="noreferrer"
-              style={{ padding: '6px 12px', backgroundColor: '#030712', border: '1px solid #1e293b', borderRadius: '20px', color: '#94a3b8', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
-            >
-              <Globe style={{ width: '10px', height: '10px' }} />
-              <span>Umattr Ecosystem</span>
-            </a>
-
-            <a 
-              href="https://github.com/zrt219" 
-              target="_blank" 
-              rel="noreferrer"
-              style={{ padding: '6px 12px', backgroundColor: '#030712', border: '1px solid #1e293b', borderRadius: '20px', color: '#94a3b8', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
-            >
-              <Github style={{ width: '10px', height: '10px' }} />
-              <span>github.com/zrt219</span>
             </a>
           </div>
 
@@ -339,11 +338,23 @@ export default function SimpleFaucet() {
                 fontSize: '11px',
                 fontFamily: 'monospace',
                 display: 'flex',
-                alignItems: 'flex-start',
-                gap: '8px'
+                flexDirection: 'column',
+                gap: '4px'
               }}>
-                <Info style={{ width: '14px', height: '14px', marginTop: '2px', flexShrink: 0 }} />
-                <span>{status.msg}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Info style={{ width: '14px', height: '14px', flexShrink: 0 }} />
+                  <span>{status.msg}</span>
+                </div>
+                {status.type === 'success' && (
+                  <a 
+                    href="https://explorer.testnet.xrplevm.org/" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    style={{ color: '#c084fc', textDecoration: 'underline', fontSize: '10px', marginTop: '4px', fontWeight: 'bold' }}
+                  >
+                    🔍 Inspect Transaction on XRPL EVM Explorer &rarr;
+                  </a>
+                )}
               </div>
             )}
 
@@ -375,11 +386,13 @@ export default function SimpleFaucet() {
 
       </div>
 
-      {/* Real Network Resources & Explorer Links */}
+      {/* Network Metadata & Official Docs Links */}
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '11px', fontFamily: 'monospace', color: '#64748b', marginTop: '20px' }}>
-        <span>RPC: <a href="https://rpc.testnet.xrplevm.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>rpc.testnet.xrplevm.org</a></span>
+        <span>Official Site: <a href="https://xrpl.org/" target="_blank" rel="noreferrer" style={{ color: '#06b6d4', textDecoration: 'none', fontWeight: 'bold' }}>xrpl.org</a></span>
         <span>•</span>
-        <span>EVM Explorer: <a href="https://explorer.testnet.xrplevm.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>explorer.testnet.xrplevm.org</a></span>
+        <span>EVM Explorer: <a href="https://explorer.testnet.xrplevm.org/" target="_blank" rel="noreferrer" style={{ color: '#c084fc', textDecoration: 'none', fontWeight: 'bold' }}>explorer.testnet.xrplevm.org</a></span>
+        <span>•</span>
+        <span>RPC: <a href="https://rpc.testnet.xrplevm.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>rpc.testnet.xrplevm.org</a></span>
         <span>•</span>
         <span>XRPL Explorer: <a href="https://testnet.xrpl.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>testnet.xrpl.org</a></span>
       </div>
