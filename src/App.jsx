@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-black text-slate-100 p-4 max-w-6xl mx-auto flex flex-col justify-between">
+    <div style={{ minHeight: '100vh', backgroundColor: '#030303', color: '#f8fafc', display: 'flex', flexDirection: 'column', justifyBetween: 'space-between' }}>
       <div>
         {/* Top Header */}
         <Header />

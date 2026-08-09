@@ -2,32 +2,31 @@ import React from 'react';
 
 export default function Header() {
   return (
-    <header className="flex items-center justify-between w-full max-w-6xl mx-auto py-6 px-4">
+    <header style={{ width: '100%', maxWidth: '880px', margin: '0 auto', padding: '24px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       {/* Logo */}
-      <div className="flex items-center gap-2">
-        {/* Geometric logo icon */}
-        <div className="flex flex-col gap-0.5 justify-center">
-          <div className="flex gap-0.5">
-            <div className="w-2.5 h-2.5 bg-white rotate-45 transform origin-center"></div>
-            <div className="w-2.5 h-2.5 bg-white/40 rotate-45 transform origin-center"></div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: '2px' }}>
+            <div style={{ width: '9px', height: '9px', backgroundColor: '#ffffff', transform: 'rotate(45deg)' }}></div>
+            <div style={{ width: '9px', height: '9px', backgroundColor: 'rgba(255, 255, 255, 0.4)', transform: 'rotate(45deg)' }}></div>
           </div>
-          <div className="flex gap-0.5 -mt-1 ml-1.5">
-            <div className="w-2.5 h-2.5 bg-white/40 rotate-45 transform origin-center"></div>
-            <div className="w-2.5 h-2.5 bg-white rotate-45 transform origin-center"></div>
+          <div style={{ display: 'flex', gap: '2px', marginTop: '-3px', marginLeft: '6px' }}>
+            <div style={{ width: '9px', height: '9px', backgroundColor: 'rgba(255, 255, 255, 0.4)', transform: 'rotate(45deg)' }}></div>
+            <div style={{ width: '9px', height: '9px', backgroundColor: '#ffffff', transform: 'rotate(45deg)' }}></div>
           </div>
         </div>
         
-        <div className="leading-tight ml-2">
-          <span className="text-white font-bold tracking-wider text-sm block">XRPL EVM</span>
-          <span className="text-slate-400 text-[10px] tracking-widest block font-medium">SIDECHAIN</span>
+        <div style={{ lineHeight: '1.1' }}>
+          <span style={{ color: '#ffffff', fontWeight: '800', letterSpacing: '1px', fontSize: '14px', display: 'block', fontFamily: 'sans-serif' }}>XRPL EVM</span>
+          <span style={{ color: '#94a3b8', fontSize: '9px', letterSpacing: '2px', display: 'block', fontWeight: '600', fontFamily: 'sans-serif' }}>SIDECHAIN</span>
         </div>
       </div>
 
       {/* Systems Status */}
-      <div className="flex items-center gap-2 text-[11px] font-sans">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span className="text-emerald-400 font-medium">All systems operational</span>
-        <span className="text-slate-600 font-medium ml-1">v2.4</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontFamily: 'sans-serif' }}>
+        <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }}></span>
+        <span style={{ color: '#10b981', fontWeight: '600' }}>All systems operational</span>
+        <span style={{ color: '#64748b', fontWeight: '500', marginLeft: '4px' }}>v2.4</span>
       </div>
     </header>
   );

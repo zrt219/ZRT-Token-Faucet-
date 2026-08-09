@@ -3,11 +3,9 @@ import {
   Copy, 
   CheckCircle2, 
   ArrowRight, 
-  Lock,
-  Wallet,
-  MessageSquare,
-  Sparkles,
-  Info
+  MessageSquare, 
+  Info,
+  ExternalLink
 } from 'lucide-react';
 import { faucetService } from '../services/faucetService';
 import { soundEffects } from '../services/audioService';
@@ -24,7 +22,6 @@ export default function SimpleFaucet() {
   const [copied, setCopied] = useState(false);
   const [status, setStatus] = useState(null); // { type: 'success' | 'error', msg: '' }
 
-  // Check inputs and validation
   const isValidAddress = /^0x[a-fA-F0-9]{40}$/.test(recipient.trim());
 
   useEffect(() => {
@@ -56,20 +53,19 @@ export default function SimpleFaucet() {
     setIsSending(true);
     setStatus(null);
 
-    // Call service to top-up EVM XRP on-chain
     const result = await faucetService.topupEvmAddress(recipient, claimAmount);
     setIsSending(false);
 
     if (result && result.status === 'SUCCESS') {
       setStatus({ 
         type: 'success', 
-        msg: `Transaction Broadcast! Claim of ${claimAmount} XRP validated.` 
+        msg: `Transaction Broadcast! Claim of ${claimAmount} XRP validated on-chain.` 
       });
       confetti({
         particleCount: 150,
         spread: 80,
         origin: { y: 0.65 },
-        colors: ['#8b5cf6', '#06b6d4', '#10b981']
+        colors: ['#a855f7', '#06b6d4', '#10b981']
       });
       soundEffects.playTxConfirmed();
     } else {
@@ -90,189 +86,310 @@ export default function SimpleFaucet() {
   };
 
   return (
-    <main className="w-full max-w-4xl mx-auto px-4 mt-8 font-sans">
-      {/* Title block */}
-      <div className="text-center max-w-2xl mx-auto mb-10 flex flex-col gap-3">
-        <span className="text-[10px] tracking-widest font-mono text-purple-400 font-bold uppercase block">
+    <div style={{ width: '100%', maxWidth: '880px', margin: '32px auto 0 auto', padding: '0 16px', fontFamily: 'Inter, -apple-system, sans-serif' }}>
+      
+      {/* Title & Subtitle */}
+      <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto 40px auto' }}>
+        <span style={{ fontSize: '10px', letterSpacing: '2px', color: '#c084fc', fontWeight: '700', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
           XRPL EVM FAUCET
         </span>
-        <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-          Get test XRP, to your wallet <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">in seconds.</span>
+        <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#ffffff', lineHeight: '1.25', letterSpacing: '-0.5px', marginBottom: '12px' }}>
+          Get test XRP, to your wallet <span style={{ background: 'linear-gradient(to right, #c084fc, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>in seconds.</span>
         </h1>
-        <p className="text-slate-400 text-xs md:text-sm font-normal max-w-lg mx-auto leading-relaxed">
-          Get test XRP delivered on the XRPL EVM sidechain. Pick a network, <strong className="text-slate-200">CONNECT</strong> or <strong className="text-slate-200">PASTE</strong> your address, and you're set.
+        <p style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.6', margin: '0 auto' }}>
+          Get test XRP delivered on the XRPL EVM sidechain. Pick a network, <strong style={{ color: '#e2e8f0' }}>CONNECT</strong> or <strong style={{ color: '#e2e8f0' }}>PASTE</strong> your address, and you're set.
         </p>
       </div>
 
-      {/* Main Faucet Box */}
-      <div className="bg-[#0b0c10] border border-slate-900 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 shadow-2xl relative overflow-hidden items-stretch">
+      {/* Main Faucet Card Container */}
+      <div style={{ 
+        backgroundColor: '#0a0c10', 
+        border: '1px solid #1e293b', 
+        borderRadius: '20px', 
+        padding: '32px', 
+        display: 'flex', 
+        flexDirection: 'row', 
+        flexWrap: 'wrap', 
+        gap: '32px', 
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+        alignItems: 'stretch'
+      }}>
         
-        {/* Left Side: Steps (Steps 1, 2, 3) */}
-        <div className="flex-1 flex flex-col gap-6 min-w-0">
+        {/* Left Steps Column */}
+        <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '24px', minWidth: '280px' }}>
           
           {/* Step 1 */}
-          <div className="flex flex-col gap-2.5">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[9px] text-slate-500 font-mono tracking-widest block uppercase">STEP 1</span>
-                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Connect or paste an address</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', itemsCenter: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+              <div>
+                <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', display: 'block' }}>STEP 1</span>
+                <h3 style={{ fontSize: '12px', fontWeight: '700', color: '#f1f5f9', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Connect or paste an address</h3>
               </div>
 
-              {/* Connect Wallet Badge */}
+              {/* Connect Badge */}
               <button
                 type="button"
                 onClick={handleConnectWallet}
                 disabled={isConnectingMM}
-                className="bg-slate-950 border border-slate-800/80 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[10px] font-mono text-slate-300 hover:border-purple-500/60 hover:text-white transition-all cursor-pointer shrink-0"
+                style={{
+                  backgroundColor: '#030712',
+                  border: '1px solid #334155',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '11px',
+                  fontFamily: 'monospace',
+                  color: '#cbd5e1',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${metaMaskAddr ? 'bg-emerald-400' : 'bg-rose-500'} animate-pulse`}></span>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: metaMaskAddr ? '#10b981' : '#ef4444' }}></span>
                 <span>{metaMaskAddr ? `${metaMaskAddr.slice(0, 6)}...${metaMaskAddr.slice(-4)}` : 'Connect Wallet'}</span>
               </button>
             </div>
 
             {/* Input Address Field */}
-            <div className="relative flex items-center bg-slate-950 border border-slate-900 focus-within:border-purple-500/80 rounded-xl p-3.5 transition-all">
-              <span className="text-slate-500 mr-2 shrink-0 font-mono text-xs font-bold">&gt;</span>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              backgroundColor: '#030712', 
+              border: '1px solid #334155', 
+              borderRadius: '12px', 
+              padding: '12px 14px',
+              transition: 'border 0.2s'
+            }}>
+              <span style={{ color: '#64748b', marginRight: '8px', fontFamily: 'monospace', fontSize: '13px', fontWeight: 'bold' }}>&gt;</span>
               <input
                 type="text"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="0x... (MetaMask EVM Address)"
-                className="bg-transparent border-none outline-none text-white text-xs w-full font-mono placeholder-slate-600"
+                style={{ 
+                  backgroundColor: 'transparent', 
+                  border: 'none', 
+                  outline: 'none', 
+                  color: '#ffffff', 
+                  fontSize: '13px', 
+                  width: '100%', 
+                  fontFamily: 'monospace',
+                  fontWeight: '500'
+                }}
               />
               {recipient && (
-                <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '8px', shrink: 0 }}>
                   <button 
                     type="button" 
                     onClick={handleCopy}
-                    className="text-slate-500 hover:text-slate-300 text-[10px] uppercase font-mono tracking-wider flex items-center gap-0.5"
+                    style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '10px', textTransform: 'uppercase', fontFamily: 'monospace', cursor: 'pointer', fontWeight: 'bold' }}
                   >
                     {copied ? 'Copied' : 'Copy'}
                   </button>
-                  {isValidAddress && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                  {isValidAddress && <CheckCircle2 style={{ width: '16px', height: '16px', color: '#10b981' }} />}
                 </div>
               )}
             </div>
           </div>
 
           {/* Step 2 */}
-          <div className="flex flex-col gap-2.5">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[9px] text-slate-500 font-mono tracking-widest block uppercase">STEP 2</span>
-              <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Pick a network</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div>
+              <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', display: 'block' }}>STEP 2</span>
+              <h3 style={{ fontSize: '12px', fontWeight: '700', color: '#f1f5f9', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Pick a network</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <button
                 type="button"
                 onClick={() => setSelectedNetwork('testnet')}
-                className={`py-3.5 px-4 rounded-xl border font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
-                  selectedNetwork === 'testnet'
-                    ? 'bg-purple-950/20 border-purple-500 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.15)]'
-                    : 'bg-slate-950 border-slate-900 text-slate-500 hover:text-slate-300'
-                }`}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  border: selectedNetwork === 'testnet' ? '1px solid #a855f7' : '1px solid #1e293b',
+                  backgroundColor: selectedNetwork === 'testnet' ? 'rgba(168, 85, 247, 0.15)' : '#030712',
+                  color: selectedNetwork === 'testnet' ? '#e9d5ff' : '#64748b',
+                  fontWeight: '700',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  fontFamily: 'monospace'
+                }}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${selectedNetwork === 'testnet' ? 'bg-purple-400' : 'bg-slate-700'}`}></span>
-                Testnet <span className="opacity-60 text-[10px]">98.83 XRP</span>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: selectedNetwork === 'testnet' ? '#c084fc' : '#475569' }}></span>
+                Testnet <span style={{ opacity: 0.6, fontSize: '10px' }}>98.83 XRP</span>
               </button>
 
               <button
                 type="button"
                 disabled
-                className="py-3.5 px-4 rounded-xl border border-slate-900/50 bg-slate-950/40 text-slate-700 flex items-center justify-center gap-1.5 cursor-not-allowed font-bold"
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  border: '1px solid #1e293b',
+                  backgroundColor: '#030712',
+                  color: '#475569',
+                  fontWeight: '700',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  cursor: 'not-allowed',
+                  opacity: 0.5,
+                  fontFamily: 'monospace'
+                }}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
-                Devnet <span className="opacity-40 text-[10px]">100 XRP</span>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#334155' }}></span>
+                Devnet <span style={{ opacity: 0.4, fontSize: '10px' }}>100 XRP</span>
               </button>
             </div>
           </div>
 
           {/* Step 3 */}
-          <div className="flex flex-col gap-2.5">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[9px] text-slate-500 font-mono tracking-widest block uppercase">STEP 3</span>
-              <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Complete to unlock the faucet</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div>
+              <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', display: 'block' }}>STEP 3</span>
+              <h3 style={{ fontSize: '12px', fontWeight: '700', color: '#f1f5f9', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Complete to unlock the faucet</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <a
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                className="py-3 px-4 bg-slate-950 border border-slate-900 hover:border-slate-800 text-slate-300 rounded-xl flex items-center justify-between hover:text-white transition-all cursor-pointer"
+                style={{
+                  padding: '12px 14px',
+                  backgroundColor: '#030712',
+                  border: '1px solid #1e293b',
+                  borderRadius: '12px',
+                  color: '#cbd5e1',
+                  fontSize: '11px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  textDecoration: 'none',
+                  fontWeight: '500'
+                }}
               >
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-slate-400 fill-current" viewBox="0 0 24 24">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg style={{ width: '14px', height: '14px', fill: '#94a3b8' }} viewBox="0 0 24 24">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
                   <span>Follow @Peersyst on X</span>
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-600" />
+                <ArrowRight style={{ width: '14px', height: '14px', color: '#475569' }} />
               </a>
 
               <a
                 href="https://discord.com"
                 target="_blank"
                 rel="noreferrer"
-                className="py-3 px-4 bg-slate-950 border border-slate-900 hover:border-slate-800 text-slate-300 rounded-xl flex items-center justify-between hover:text-white transition-all cursor-pointer"
+                style={{
+                  padding: '12px 14px',
+                  backgroundColor: '#030712',
+                  border: '1px solid #1e293b',
+                  borderRadius: '12px',
+                  color: '#cbd5e1',
+                  fontSize: '11px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  textDecoration: 'none',
+                  fontWeight: '500'
+                }}
               >
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-slate-400" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <MessageSquare style={{ width: '14px', height: '14px', color: '#94a3b8' }} />
                   <span>Join our Discord</span>
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-600" />
+                <ArrowRight style={{ width: '14px', height: '14px', color: '#475569' }} />
               </a>
             </div>
           </div>
 
         </div>
 
-        {/* Right Side: Claim Summary Card */}
-        <div className="w-full md:w-[320px] shrink-0 flex flex-col justify-between bg-slate-950 border border-slate-900 rounded-2xl p-5 md:p-6 gap-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-baseline gap-1 border-b border-slate-900 pb-3">
-              <span className="text-3xl md:text-4xl font-bold text-white tracking-tight">{claimAmount}</span>
-              <span className="text-sm font-semibold text-slate-500 font-mono">XRP</span>
+        {/* Right Claim Summary Card */}
+        <div style={{ 
+          flex: '0 0 300px', 
+          backgroundColor: '#030712', 
+          border: '1px solid #1e293b', 
+          borderRadius: '16px', 
+          padding: '24px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'space-between',
+          gap: '24px'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', borderBottom: '1px solid #1e293b', paddingBottom: '12px' }}>
+              <span style={{ fontSize: '36px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.5px' }}>{claimAmount}</span>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: '#64748b', fontFamily: 'monospace' }}>XRP</span>
             </div>
 
-            <table className="w-full text-xs font-mono text-slate-300">
-              <tbody className="divide-y divide-slate-900">
-                <tr>
-                  <td className="py-2.5 text-slate-500 uppercase text-[10px]">Network</td>
-                  <td className="py-2.5 text-right font-bold capitalize">{selectedNetwork}</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 text-slate-500 uppercase text-[10px]">Chain ID</td>
-                  <td className="py-2.5 text-right font-bold">1449000</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 text-slate-500 uppercase text-[10px]">ETA</td>
-                  <td className="py-2.5 text-right font-bold text-purple-400">&lt; 2 min</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 text-slate-500 uppercase text-[10px]">Method</td>
-                  <td className="py-2.5 text-right font-bold">Bridge from XRPL</td>
-                </tr>
-              </tbody>
-            </table>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px', fontFamily: 'monospace' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #0f172a', paddingBottom: '6px' }}>
+                <span style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Network</span>
+                <span style={{ color: '#f1f5f9', fontWeight: 'bold', textTransform: 'capitalize' }}>{selectedNetwork}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #0f172a', paddingBottom: '6px' }}>
+                <span style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Chain ID</span>
+                <span style={{ color: '#f1f5f9', fontWeight: 'bold' }}>1449000</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #0f172a', paddingBottom: '6px' }}>
+                <span style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>ETA</span>
+                <span style={{ color: '#c084fc', fontWeight: 'bold' }}>&lt; 2 min</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Method</span>
+                <span style={{ color: '#f1f5f9', fontWeight: 'bold' }}>Bridge from XRPL</span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {status && (
-              <div className={`p-2.5 rounded-xl border flex items-start gap-2 ${
-                status.type === 'success' ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-300' : 'bg-rose-950/30 border-rose-500/30 text-rose-300'
-              }`}>
-                <Info className={`w-4 h-4 shrink-0 mt-0.5 ${status.type === 'success' ? 'text-emerald-400' : 'text-rose-400'}`} />
-                <p className="text-[10px] font-mono leading-relaxed">{status.msg}</p>
+              <div style={{ 
+                padding: '10px 12px', 
+                borderRadius: '10px', 
+                border: status.type === 'success' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(244, 63, 94, 0.3)',
+                backgroundColor: status.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)',
+                color: status.type === 'success' ? '#6ee7b7' : '#fda4af',
+                fontSize: '11px',
+                fontFamily: 'monospace',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '8px'
+              }}>
+                <Info style={{ width: '14px', height: '14px', marginTop: '2px', flexShrink: 0 }} />
+                <span>{status.msg}</span>
               </div>
             )}
 
             <button
               onClick={handleRequestTokens}
               disabled={isSending || !isValidAddress}
-              className={`w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer shadow-lg hover:shadow-purple-500/20 transition-all ${
-                (!isValidAddress || isSending) ? 'opacity-50 cursor-not-allowed bg-purple-900/60' : ''
-              }`}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                backgroundColor: (isValidAddress && !isSending) ? '#7c3aed' : '#4c1d95',
+                color: '#ffffff',
+                fontWeight: '700',
+                fontSize: '13px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                borderRadius: '12px',
+                border: 'none',
+                cursor: (isValidAddress && !isSending) ? 'pointer' : 'not-allowed',
+                opacity: (isValidAddress && !isSending) ? 1 : 0.6,
+                boxShadow: (isValidAddress && !isSending) ? '0 10px 15px -3px rgba(124, 58, 237, 0.3)' : 'none',
+                transition: 'all 0.2s'
+              }}
             >
               {isSending ? 'REQUESTING FROM BRIDGE...' : `Request ${claimAmount} XRP`}
             </button>
@@ -283,11 +400,11 @@ export default function SimpleFaucet() {
       </div>
 
       {/* Network Metadata */}
-      <div className="flex justify-center gap-4 text-[10px] font-mono text-slate-600 mt-4">
-        <span>RPC: <a href="https://rpc.testnet.xrplevm.org" className="hover:text-slate-400">rpc.testnet.xrplevm.org</a></span>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '11px', fontFamily: 'monospace', color: '#64748b', marginTop: '20px' }}>
+        <span>RPC: <a href="https://rpc.testnet.xrplevm.org" style={{ color: '#94a3b8', textDecoration: 'none' }}>rpc.testnet.xrplevm.org</a></span>
         <span>•</span>
-        <span>Explorer: <a href="https://explorer.realtimelog.org" className="hover:text-slate-400">explorer.testnet.xrplevm.org</a></span>
+        <span>Explorer: <a href="https://explorer.realtimelog.org" style={{ color: '#94a3b8', textDecoration: 'none' }}>explorer.testnet.xrplevm.org</a></span>
       </div>
-    </main>
+    </div>
   );
 }
