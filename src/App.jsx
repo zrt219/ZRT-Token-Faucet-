@@ -291,7 +291,7 @@ export default function App() {
 
       {/* Tactical Footer */}
       <footer className="glass-panel p-3 text-center text-xs font-hud text-slate-400 border-t border-slate-800">
-        <span>URANIUM INTELLIGENCE ECOSYSTEM v2.4</span>
+        <span>ZRT XRP FAUCET & BLOCKCHAIN PLATFORM v3.0</span>
         <span className="mx-2 text-slate-500">•</span>
         <span>CONNECTED TO XRPL TESTNET LEDGER</span>
         <span className="mx-2 text-slate-500">•</span>

@@ -58,16 +58,16 @@ export default function Header({ systemStatus, onToggleAudio, isAudioMuted, onGe
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl lg:text-2xl font-bold tracking-wider font-heading text-white">
-                URANIUM INTELLIGENCE <span className="text-emerald-400">ECOSYSTEM</span>
+                ZRT XRP FAUCET & <span className="text-purple-400">BLOCKCHAIN PLATFORM</span>
               </h1>
               <span className="px-2 py-0.5 text-xs font-hud rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300">
                 XRPL TESTNET CONNECTED
               </span>
             </div>
             <p className="text-xs font-hud text-slate-400 flex items-center gap-2 mt-0.5">
-              <span>END-TO-END AUTONOMOUS ROBOTIC MINING</span>
-              <span className="text-emerald-500/60">•</span>
-              <span>CHAIN OF CUSTODY PROVENANCE</span>
+              <span>XRPL NATIVE DROPS & METAMASK EVM SIDECHAIN PORTAL</span>
+              <span className="text-purple-500/60">•</span>
+              <span>VERIFIED SMART CONTRACT PROVENANCE</span>
             </p>
           </div>
         </div>
