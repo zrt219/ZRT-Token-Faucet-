@@ -333,10 +333,10 @@ const payload = {
           XRPL EVM FAUCET & REAL-TIME HUD
         </span>
         <h1 style={{ fontSize: '42px', fontWeight: '800', color: '#ffffff', lineHeight: '1.2', letterSpacing: '-0.8px', marginBottom: '14px' }}>
-          Get test XRP, to your wallet <span style={{ background: 'linear-gradient(to right, #c084fc, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>in seconds.</span>
+          Get test XRP, to your wallet <span style={{ background: 'linear-gradient(to right, #c084fc, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>instantly.</span>
         </h1>
         <p style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.6', margin: '0 auto' }}>
-          Get test XRP delivered on the XRPL EVM sidechain. Pick a network, <strong style={{ color: '#e2e8f0' }}>CONNECT</strong> or <strong style={{ color: '#e2e8f0' }}>PASTE</strong> your address, and you're set.
+          Built by <a href="https://www.umattr.ca" target="_blank" rel="noreferrer" style={{ color: '#c084fc', fontWeight: 'bold', textDecoration: 'none' }}>UMATTR (umattr.ca)</a>. Get test XRP delivered on the XRPL EVM sidechain. Pick a network, <strong style={{ color: '#e2e8f0' }}>CONNECT</strong> or <strong style={{ color: '#e2e8f0' }}>PASTE</strong> your address, and you're set.
         </p>
       </div>
 
