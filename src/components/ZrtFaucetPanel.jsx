@@ -16,7 +16,8 @@ import {
   Download,
   AlertTriangle,
   Radio,
-  Share2
+  Share2,
+  Droplet
 } from 'lucide-react';
 import { faucetService } from '../services/faucetService';
 import { soundEffects } from '../services/audioService';
@@ -25,7 +26,9 @@ import * as xrpl from 'xrpl';
 
 export default function ZrtFaucetPanel() {
   const [recipient, setRecipient] = useState('');
+  const [assetType, setAssetType] = useState('ZRT'); // 'ZRT' | 'NATIVE_XRP' | 'EVM_XRP'
   const [claimAmount, setClaimAmount] = useState('100');
+  
   const [balances, setBalances] = useState({ ...faucetService.balances });
   const [claimsHistory, setClaimsHistory] = useState([...faucetService.claimsHistory]);
   
@@ -33,6 +36,10 @@ export default function ZrtFaucetPanel() {
   const [isSending, setIsSending] = useState(false);
   const [isRefilling, setIsRefilling] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState(null);
+
+  // MetaMask state
+  const [metaMaskAddr, setMetaMaskAddr] = useState('');
+  const [isConnectingMM, setIsConnectingMM] = useState(false);
   
   // Local test wallet generation
   const [localWallet, setLocalWallet] = useState(null);
@@ -58,7 +65,7 @@ export default function ZrtFaucetPanel() {
 
   // Visual flow canvas ref
   const canvasRef = useRef(null);
-  const [pulses, setPulses] = useState([]); // Array of active transfer pulses on map
+  const [pulses, setPulses] = useState([]);
 
   useEffect(() => {
     initFaucet();
@@ -73,7 +80,14 @@ export default function ZrtFaucetPanel() {
     return unsubscribe;
   }, []);
 
-  // Check recipient address status as they type
+  // Sync claim amount defaults when switching asset type
+  useEffect(() => {
+    if (assetType === 'ZRT') setClaimAmount('100');
+    else if (assetType === 'NATIVE_XRP') setClaimAmount('10');
+    else if (assetType === 'EVM_XRP') setClaimAmount('5');
+  }, [assetType]);
+
+  // Check recipient address status as user types
   useEffect(() => {
     const checkAddress = async () => {
       const addr = recipient.trim();
@@ -82,26 +96,41 @@ export default function ZrtFaucetPanel() {
         return;
       }
 
-      // Basic XRPL address regex check
+      if (assetType === 'EVM_XRP') {
+        // Check 0x... EVM address format
+        const evmRegex = /^0x[a-fA-F0-9]{40}$/;
+        if (evmRegex.test(addr)) {
+          setAddressStatus({ isValid: true, hasTrustline: true, checking: false, msg: 'Valid EVM Address (XRPL EVM Sidechain)' });
+        } else {
+          setAddressStatus({ isValid: false, hasTrustline: false, checking: false, msg: 'Invalid EVM Address (Must start with 0x...)' });
+        }
+        return;
+      }
+
+      // Check XRPL Native r... address format
       const xrplRegex = /^r[0-9a-zA-Z]{24,34}$/;
       if (!xrplRegex.test(addr)) {
         setAddressStatus({ isValid: false, hasTrustline: false, checking: false, msg: 'Invalid XRPL address format' });
         return;
       }
 
+      if (assetType === 'NATIVE_XRP') {
+        setAddressStatus({ isValid: true, hasTrustline: true, checking: false, msg: 'Valid XRPL Address (Ready to receive XRP Drops)' });
+        return;
+      }
+
       setAddressStatus(prev => ({ ...prev, checking: true, msg: 'Querying ledger state...' }));
 
       if (faucetService.simulationMode) {
-        // Mock verification
         setTimeout(() => {
           const hasTrust = localWallet && addr === localWallet.address ? trustlineSet : Math.random() > 0.3;
           setAddressStatus({
             isValid: true,
             hasTrustline: hasTrust,
             checking: false,
-            msg: hasTrust ? 'Trustline Active (Ready to receive ZRT)' : 'Missing ZRT trustline'
+            msg: hasTrust ? 'Trustline Active (Ready for ZRT)' : 'Missing ZRT trustline'
           });
-        }, 600);
+        }, 400);
         return;
       }
 
@@ -111,23 +140,16 @@ export default function ZrtFaucetPanel() {
           return;
         }
 
-        // Verify account exists
-        const accountInfo = await faucetService.client.request({
-          command: 'account_info',
-          account: addr
-        }).catch(() => null);
-
-        if (!accountInfo) {
-          setAddressStatus({ isValid: true, hasTrustline: false, checking: false, msg: 'Unfunded Address (Need XRP to activate)' });
-          return;
-        }
-
-        // Verify trustline to Issuer for ZRT
         const lines = await faucetService.client.request({
           command: 'account_lines',
           account: addr
-        });
+        }).catch(() => null);
         
+        if (!lines) {
+          setAddressStatus({ isValid: true, hasTrustline: false, checking: false, msg: 'Unfunded Address' });
+          return;
+        }
+
         const zrtLine = lines.result.lines.find(l => 
           l.currency === faucetService.tokenCode && 
           l.account === faucetService.issuerWallet?.address
@@ -143,9 +165,9 @@ export default function ZrtFaucetPanel() {
       }
     };
 
-    const timer = setTimeout(checkAddress, 500);
+    const timer = setTimeout(checkAddress, 400);
     return () => clearTimeout(timer);
-  }, [recipient, trustlineSet, localWallet]);
+  }, [recipient, trustlineSet, localWallet, assetType]);
 
   // Canvas visual flow loop
   useEffect(() => {
@@ -154,9 +176,8 @@ export default function ZrtFaucetPanel() {
     const ctx = canvas.getContext('2d');
     let animationFrame;
 
-    // Node coordinates
     const nodes = {
-      issuer: { x: 50, y: 70, label: 'ZRT ISSUER', glow: '#a855f7' },
+      issuer: { x: 50, y: 70, label: 'ISSUER NODE', glow: '#a855f7' },
       faucet: { x: 190, y: 70, label: 'FAUCET VAULT', glow: '#a855f7' },
       recipient: { x: 330, y: 70, label: 'RECIPIENT', glow: '#06b6d4' }
     };
@@ -164,7 +185,6 @@ export default function ZrtFaucetPanel() {
     const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw background grid lines
       ctx.strokeStyle = 'rgba(168, 85, 247, 0.05)';
       ctx.lineWidth = 1;
       for (let i = 0; i < canvas.width; i += 20) {
@@ -180,31 +200,26 @@ export default function ZrtFaucetPanel() {
         ctx.stroke();
       }
 
-      // Draw connection wires
       ctx.strokeStyle = 'rgba(168, 85, 247, 0.2)';
       ctx.lineWidth = 2;
       ctx.setLineDash([4, 4]);
       
-      // Wire 1: Issuer -> Faucet
       ctx.beginPath();
       ctx.moveTo(nodes.issuer.x, nodes.issuer.y);
       ctx.lineTo(nodes.faucet.x, nodes.faucet.y);
       ctx.stroke();
 
-      // Wire 2: Faucet -> Recipient
       ctx.beginPath();
       ctx.moveTo(nodes.faucet.x, nodes.faucet.y);
       ctx.lineTo(nodes.recipient.x, nodes.recipient.y);
       ctx.stroke();
-      ctx.setLineDash([]); // Reset
+      ctx.setLineDash([]);
 
-      // Update and draw pulses
       setPulses(prevPulses => {
         const nextPulses = [];
         prevPulses.forEach(p => {
           const updated = { ...p, progress: p.progress + 0.03 };
           if (updated.progress < 1.0) {
-            // Draw pulse particle
             const start = nodes[p.from];
             const end = nodes[p.to];
             const currentX = start.x + (end.x - start.x) * updated.progress;
@@ -217,7 +232,6 @@ export default function ZrtFaucetPanel() {
             ctx.arc(currentX, currentY, 5, 0, Math.PI * 2);
             ctx.fill();
 
-            // Sparks
             for (let i = 0; i < 3; i++) {
               ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
               ctx.beginPath();
@@ -234,20 +248,17 @@ export default function ZrtFaucetPanel() {
         });
         return nextPulses;
       });
-      ctx.shadowBlur = 0; // Reset shadow
+      ctx.shadowBlur = 0;
 
-      // Draw node points
       Object.keys(nodes).forEach(key => {
         const node = nodes[key];
         
-        // Outer glowing ring
         ctx.strokeStyle = node.glow;
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.arc(node.x, node.y, 16, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Inner solid core
         ctx.fillStyle = '#0f172a';
         ctx.beginPath();
         ctx.arc(node.x, node.y, 12, 0, Math.PI * 2);
@@ -258,7 +269,6 @@ export default function ZrtFaucetPanel() {
         ctx.arc(node.x, node.y, 6, 0, Math.PI * 2);
         ctx.fill();
 
-        // Labels
         ctx.fillStyle = '#cbd5e1';
         ctx.font = 'bold 8px "Share Tech Mono"';
         ctx.textAlign = 'center';
@@ -281,6 +291,25 @@ export default function ZrtFaucetPanel() {
     await faucetService.setupFaucetAccounts();
     setBalances({ ...faucetService.balances });
     setIsInitializing(false);
+  };
+
+  const handleConnectMetaMask = async () => {
+    soundEffects.playClick(1100);
+    setIsConnectingMM(true);
+    setStatus({ type: 'info', msg: 'Connecting to MetaMask & switching to XRPL EVM Testnet...' });
+
+    try {
+      const addr = await faucetService.connectMetaMask();
+      setMetaMaskAddr(addr);
+      setAssetType('EVM_XRP');
+      setRecipient(addr);
+      setStatus({ type: 'success', msg: `MetaMask connected: ${addr}` });
+    } catch (e) {
+      console.error(e);
+      setStatus({ type: 'error', msg: `MetaMask Connection Error: ${e.message}` });
+    } finally {
+      setIsConnectingMM(false);
+    }
   };
 
   const handleGenerateTestWallet = async () => {
@@ -308,7 +337,6 @@ export default function ZrtFaucetPanel() {
           setStatus({ type: 'error', msg: 'XRP funded, but ZRT trustline config failed.' });
         }
       } else {
-        // Simulation mode
         setLocalWallet(wallet);
         setLocalXrpBalance('100.00');
         setTrustlineSet(true);
@@ -330,18 +358,25 @@ export default function ZrtFaucetPanel() {
 
     soundEffects.playClick(900);
     setIsSending(true);
-    setStatus({ type: 'info', msg: 'Executing top-up on-chain transaction...' });
+    setStatus({ type: 'info', msg: `Broadcasting ${assetType} payout transaction...` });
 
-    // Trigger visual pulse from faucet to recipient
-    triggerPulse('faucet', 'recipient', '#a855f7');
+    triggerPulse('faucet', 'recipient', assetType === 'NATIVE_XRP' ? '#10b981' : assetType === 'EVM_XRP' ? '#06b6d4' : '#a855f7');
 
-    const result = await faucetService.topupAddress(recipient, claimAmount);
+    let result;
+    if (assetType === 'NATIVE_XRP') {
+      result = await faucetService.topupNativeXrp(recipient, claimAmount);
+    } else if (assetType === 'EVM_XRP') {
+      result = await faucetService.topupEvmAddress(recipient, claimAmount);
+    } else {
+      result = await faucetService.topupAddress(recipient, claimAmount);
+    }
+
     setIsSending(false);
 
     if (result && result.status === 'SUCCESS') {
       setStatus({ 
         type: 'success', 
-        msg: `Top-up processed! Sent ${claimAmount} ZRT to ${recipient}` 
+        msg: `Top-up Verified! Sent ${result.amount} to ${recipient}` 
       });
       
       confetti({
@@ -353,24 +388,25 @@ export default function ZrtFaucetPanel() {
       soundEffects.playTxConfirmed();
 
       if (localWallet && recipient === localWallet.address) {
-        setLocalZrtBalance(prev => (parseFloat(prev) + parseFloat(claimAmount)).toFixed(2));
+        if (assetType === 'NATIVE_XRP') {
+          setLocalXrpBalance(prev => (parseFloat(prev) + parseFloat(claimAmount)).toFixed(2));
+        } else if (assetType === 'ZRT') {
+          setLocalZrtBalance(prev => (parseFloat(prev) + parseFloat(claimAmount)).toFixed(2));
+        }
       }
     } else {
       setStatus({ 
         type: 'error', 
-        msg: `Payout rejected: ${result.error || 'Destination account requires an established trustline.'}` 
+        msg: `Payout rejected: ${result.error || 'Check wallet address or trustlines.'}` 
       });
       soundEffects.playWarningPulse();
     }
   };
 
-  // Admin function: Refill distributor from issuer
   const handleFaucetRefill = async () => {
     soundEffects.playClick(1050);
     setIsRefilling(true);
     setStatus({ type: 'info', msg: `Refilling Faucet vault with ${parseInt(mintAmount).toLocaleString()} ZRT...` });
-    
-    // Visual pulse from issuer to Faucet
     triggerPulse('issuer', 'faucet', '#a855f7');
 
     if (faucetService.simulationMode) {
@@ -413,12 +449,12 @@ export default function ZrtFaucetPanel() {
 
   const handleExportLogs = () => {
     soundEffects.playClick(1000);
-    const content = claimsHistory.map(c => `${c.timestamp},${c.recipient},${c.amount},${c.status},${c.hash}`).join('\n');
-    const blob = new Blob([`Timestamp,Recipient,Amount,Status,Hash\n${content}`], { type: 'text/csv' });
+    const content = claimsHistory.map(c => `${c.timestamp},${c.recipient},${c.amount},${c.network},${c.status},${c.hash}`).join('\n');
+    const blob = new Blob([`Timestamp,Recipient,Amount,Network,Status,Hash\n${content}`], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `zrt_faucet_ledger_${Date.now()}.csv`;
+    a.download = `zrt_xrp_faucet_ledger_${Date.now()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -430,18 +466,29 @@ export default function ZrtFaucetPanel() {
         <div className="flex items-center gap-2 text-white">
           <Coins className="w-5 h-5 text-purple-400 animate-pulse" />
           <h2 className="text-base font-bold font-heading text-white tracking-wider">
-            ZRT (ZEPHYR RADIANT TOKEN) ULTIMATE FAUCET & LEDGER HUB
+            ZRT & REAL XRP TESTNET FAUCET PORTAL
           </h2>
         </div>
         <div className="flex items-center gap-2">
+          {/* MetaMask Web3 Button */}
+          <button
+            onClick={handleConnectMetaMask}
+            disabled={isConnectingMM}
+            className="p-1.5 px-3 rounded border border-yellow-500/40 bg-yellow-950/40 text-yellow-400 hover:bg-yellow-500 hover:text-black font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
+          >
+            <Wallet className="w-3.5 h-3.5" />
+            {metaMaskAddr ? `METAMASK: ${metaMaskAddr.slice(0,6)}...` : 'CONNECT METAMASK (XRPL EVM)'}
+          </button>
+
           <button 
             onClick={() => setIsAdminOpen(!isAdminOpen)}
             className={`p-1.5 rounded border text-xs flex items-center gap-1.5 cursor-pointer ${
               isAdminOpen ? 'bg-purple-950 border-purple-500 text-purple-300' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
             }`}
           >
-            <Settings className="w-3.5 h-3.5" /> VAULT ADMIN
+            <Settings className="w-3.5 h-3.5" /> ADMIN
           </button>
+
           <span className="text-xs text-purple-400 bg-purple-950/60 border border-purple-500/40 px-2.5 py-1 rounded font-bold">
             {faucetService.simulationMode ? 'SIMULATION MODE' : 'LIVE XRPL TESTNET'}
           </span>
@@ -453,7 +500,7 @@ export default function ZrtFaucetPanel() {
         <div className="glass-panel p-3 bg-purple-950/20 border-purple-500/30 mb-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs animate-fadeIn">
           <div>
             <h3 className="text-purple-400 font-bold mb-1.5 flex items-center gap-1">
-              <Settings className="w-3.5 h-3.5" /> REFILL FAUCET RESERVES (MINT TOKENS)
+              <Settings className="w-3.5 h-3.5" /> REFILL FAUCET RESERVES (MINT ZRT)
             </h3>
             <p className="text-[10px] text-slate-400 mb-2 leading-relaxed">
               Mints additional ZRT from the issuer root address directly into the Distributor Faucet vault to ensure continuous test network claims.
@@ -480,15 +527,11 @@ export default function ZrtFaucetPanel() {
             <div>
               <h3 className="text-slate-400 font-bold mb-1.5">ISSUING METADATA DIRECTIVES</h3>
               <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
-                <div>TOKEN CODE: <span className="text-purple-400">ZRT</span></div>
-                <div>DECIMALS: <span className="text-purple-400">15 Limit</span></div>
-                <div>AUTOTRUST: <span className="text-purple-400">ENABLED</span></div>
-                <div>CONGESTION: <span className="text-emerald-400">NORMAL</span></div>
+                <div>EVM RPC: <span className="text-purple-400">XRPL EVM TESTNET</span></div>
+                <div>CHAIN ID: <span className="text-purple-400">1449000 (0x161240)</span></div>
+                <div>EVM BAL: <span className="text-emerald-400">{balances.evmXrp} XRP</span></div>
+                <div>STATUS: <span className="text-emerald-400 font-bold">ONLINE</span></div>
               </div>
-            </div>
-            <div className="text-[10px] text-yellow-500 bg-yellow-550/10 border border-yellow-500/20 p-1.5 rounded flex items-center gap-1">
-              <AlertTriangle className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
-              <span>Minting is cryptographically locked to Issuer private keys.</span>
             </div>
           </div>
         </div>
@@ -522,38 +565,25 @@ export default function ZrtFaucetPanel() {
               />
             </div>
 
-            <div className="space-y-2.5">
-              <div className="bg-slate-900/60 p-2 rounded border border-slate-850">
-                <span className="text-slate-400 text-[10px] block">ISSUER ADDR:</span>
-                <div className="flex items-center justify-between text-[11px] text-slate-300 font-mono">
-                  <span className="truncate">{faucetService.issuerWallet?.address || 'Initialising...'}</span>
-                  <button onClick={() => copyToClipboard(faucetService.issuerWallet?.address)} className="text-slate-500 hover:text-white ml-2">
-                    <Copy className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+            <div className="space-y-2 text-xs font-mono">
+              <div className="bg-slate-900/60 p-2.5 rounded border border-slate-850">
+                <span className="text-slate-400 text-[9px] block">ZRT TOKEN RESERVES</span>
+                <span className="text-purple-400 font-bold text-sm leading-tight block mt-0.5">
+                  {parseFloat(balances.faucetZrt).toLocaleString()} ZRT
+                </span>
               </div>
-
-              <div className="bg-slate-900/60 p-2 rounded border border-slate-850">
-                <span className="text-slate-400 text-[10px] block">FAUCET VAULT ADDR:</span>
-                <div className="flex items-center justify-between text-[11px] text-slate-300 font-mono">
-                  <span className="truncate">{faucetService.faucetWallet?.address || 'Initialising...'}</span>
-                  <button onClick={() => copyToClipboard(faucetService.faucetWallet?.address)} className="text-slate-500 hover:text-white ml-2">
-                    <Copy className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                <div className="bg-slate-900/60 p-2.5 rounded border border-slate-850">
-                  <span className="text-slate-400 text-[9px] block">ZRT TOTAL VAULT</span>
-                  <span className="text-purple-400 font-bold text-sm leading-tight block mt-0.5">
-                    {parseFloat(balances.faucetZrt).toLocaleString()}
+              
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-slate-900/60 p-2 rounded border border-slate-850">
+                  <span className="text-slate-400 text-[9px] block">XRPL NATIVE XRP</span>
+                  <span className="text-emerald-400 font-bold text-xs block mt-0.5">
+                    {balances.faucetXrp} XRP
                   </span>
                 </div>
-                <div className="bg-slate-900/60 p-2.5 rounded border border-slate-850">
-                  <span className="text-slate-400 text-[9px] block">GAS RESERVES</span>
-                  <span className="text-emerald-400 font-bold text-sm leading-tight block mt-0.5">
-                    {balances.faucetXrp} XRP
+                <div className="bg-slate-900/60 p-2 rounded border border-slate-850">
+                  <span className="text-slate-400 text-[9px] block">EVM TESTNET XRP</span>
+                  <span className="text-cyan-400 font-bold text-xs block mt-0.5">
+                    {balances.evmXrp} XRP
                   </span>
                 </div>
               </div>
@@ -561,29 +591,77 @@ export default function ZrtFaucetPanel() {
           </div>
         </div>
 
-        {/* Col 2: Payout Wizard with Dynamic Trustline validation */}
+        {/* Col 2: Payout Wizard with Asset Selector & MetaMask integration */}
         <div className="glass-panel p-4 bg-slate-950/80">
           <div className="border-b border-slate-800 pb-2 mb-3 text-xs text-purple-400 font-bold flex items-center justify-between">
-            <span>CLAIM PAYOUT DISPENSARY</span>
-            <span className="text-[10px] text-slate-500">TRUSTLINE VERIFICATION</span>
+            <span>CLAIM DISPENSARY WIZARD</span>
+            <span className="text-[10px] text-slate-500">XRPL & METAMASK</span>
           </div>
 
           <form onSubmit={handleClaim} className="space-y-3 text-xs">
+            {/* Asset Selection Tabs */}
             <div>
-              <label htmlFor="payout-recipient" className="text-slate-400 block mb-1">DESTINATION ACCOUNT ADDRESS:</label>
+              <label className="text-slate-400 block mb-1">SELECT FAUCET ASSET:</label>
+              <div className="grid grid-cols-3 gap-1.5 font-mono text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => { soundEffects.playClick(800); setAssetType('ZRT'); }}
+                  className={`p-2 rounded border font-bold text-center cursor-pointer ${
+                    assetType === 'ZRT' ? 'bg-purple-950 border-purple-500 text-purple-300' : 'bg-slate-900 border-slate-800 text-slate-400'
+                  }`}
+                >
+                  🪙 ZRT TOKEN
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { soundEffects.playClick(800); setAssetType('NATIVE_XRP'); }}
+                  className={`p-2 rounded border font-bold text-center cursor-pointer ${
+                    assetType === 'NATIVE_XRP' ? 'bg-emerald-950 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400'
+                  }`}
+                >
+                  💧 NATIVE XRP
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { soundEffects.playClick(800); setAssetType('EVM_XRP'); }}
+                  className={`p-2 rounded border font-bold text-center cursor-pointer ${
+                    assetType === 'EVM_XRP' ? 'bg-yellow-950 border-yellow-500 text-yellow-300' : 'bg-slate-900 border-slate-800 text-slate-400'
+                  }`}
+                >
+                  🦊 METAMASK EVM
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="payout-recipient-input" className="text-slate-400">RECIPIENT ADDRESS:</label>
+                {assetType === 'EVM_XRP' && !recipient && (
+                  <button 
+                    type="button" 
+                    onClick={handleConnectMetaMask}
+                    className="text-[9px] text-yellow-400 hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <Wallet className="w-2.5 h-2.5" /> FILL METAMASK ADDR
+                  </button>
+                )}
+              </div>
+
               <input
-                id="payout-recipient"
-                name="payoutRecipient"
+                id="payout-recipient-input"
+                name="payoutRecipientInput"
                 type="text"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
-                placeholder="r... (Target wallet)"
+                placeholder={assetType === 'EVM_XRP' ? '0x... (MetaMask EVM Address)' : 'r... (XRPL Address)'}
                 className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-white font-mono outline-none focus:border-purple-500 text-xs"
               />
 
               {/* Dynamic Validation Sub-Label */}
               <div className="mt-1 flex items-center justify-between text-[9px] font-mono px-1">
-                <span className="text-slate-500">STATUS:</span>
+                <span className="text-slate-500">VALIDATION:</span>
                 <span className={`font-semibold flex items-center gap-1 ${
                   addressStatus.checking ? 'text-slate-400' :
                   addressStatus.isValid && addressStatus.hasTrustline ? 'text-emerald-400' :
@@ -598,9 +676,9 @@ export default function ZrtFaucetPanel() {
             </div>
 
             <div>
-              <label className="text-slate-400 block mb-1">SELECT TOP-UP DISBURSEMENT:</label>
+              <label className="text-slate-400 block mb-1">SELECT CLAIM AMOUNT:</label>
               <div className="grid grid-cols-3 gap-2 font-mono">
-                {['50', '100', '250'].map(val => (
+                {(assetType === 'ZRT' ? ['50', '100', '250'] : assetType === 'NATIVE_XRP' ? ['5', '10', '25'] : ['2', '5', '10']).map(val => (
                   <button
                     key={val}
                     type="button"
@@ -614,7 +692,7 @@ export default function ZrtFaucetPanel() {
                         : 'bg-slate-900 border-slate-850 text-slate-400 hover:text-white'
                     }`}
                   >
-                    {val} ZRT
+                    {val} {assetType === 'ZRT' ? 'ZRT' : 'XRP'}
                   </button>
                 ))}
               </div>
@@ -638,7 +716,7 @@ export default function ZrtFaucetPanel() {
                 (!recipient || !addressStatus.isValid) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {isSending ? 'BROADCASTING TRANSACTION...' : 'EXECUTE TOP-UP TRANSACTION'}
+              {isSending ? 'PROCESSING ON-CHAIN...' : `DISBURSE ${claimAmount} ${assetType === 'ZRT' ? 'ZRT' : 'XRP'}`}
             </button>
           </form>
         </div>
@@ -680,6 +758,7 @@ export default function ZrtFaucetPanel() {
                 <button 
                   onClick={() => {
                     soundEffects.playClick(1000);
+                    setAssetType('ZRT');
                     setRecipient(localWallet.address);
                   }}
                   className="w-full text-center py-1.5 border border-dashed border-purple-500/30 rounded text-slate-400 hover:text-white hover:border-purple-500/60 text-[10px] font-mono cursor-pointer"
@@ -690,7 +769,7 @@ export default function ZrtFaucetPanel() {
             ) : (
               <div className="text-center py-3 space-y-2.5">
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Need a playground address to receive test tokens? Click below to instantly generate a temporary wallet funded with XRP and configured with a ZRT trustline.
+                  Need an XRPL address to test real testnet payments? Click below to generate an account pre-seeded with testnet XRP.
                 </p>
                 <button
                   onClick={handleGenerateTestWallet}
@@ -705,13 +784,10 @@ export default function ZrtFaucetPanel() {
 
           <div className="mt-3 bg-slate-900/40 p-2 rounded border border-slate-800/80 text-[9px] text-slate-500 space-y-1">
             <div className="flex items-center gap-1 font-bold text-slate-400">
-              <Lock className="w-3 h-3 text-purple-400" /> XRPL TRUSTLINE REGULATION GUIDE:
+              <Lock className="w-3 h-3 text-purple-400" /> METAMASK XRPL EVM NETWORK CONFIG:
             </div>
             <p className="leading-normal">
-              1. Recipient must establish a trustline to the Issuer before they can hold ZRT.
-            </p>
-            <p className="leading-normal">
-              2. TrustSet tx format: LimitAmount = `{`currency: "ZRT", issuer: issuerWallet, value: "1000000"`}`.
+              RPC: `https://rpc.testnet.xrplevm.org` • Chain ID: `1449000` (`0x161240`)
             </p>
           </div>
         </div>
@@ -750,7 +826,10 @@ export default function ZrtFaucetPanel() {
                   <span className="px-1.5 py-0.5 rounded bg-purple-950/80 text-purple-300 font-bold text-[10px] border border-purple-500/20">
                     {claim.amount}
                   </span>
-                  <span className="text-slate-400 font-mono truncate max-w-[280px]">
+                  <span className="text-xs text-cyan-400 font-mono font-bold">
+                    [{claim.network || 'XRPL'}]
+                  </span>
+                  <span className="text-slate-400 font-mono truncate max-w-[200px]">
                     TO: <strong className="text-slate-300 font-semibold">{claim.recipient}</strong>
                   </span>
                 </div>
@@ -759,7 +838,7 @@ export default function ZrtFaucetPanel() {
                   <span className="text-slate-500 font-mono">{claim.timestamp}</span>
                   <span className="text-emerald-400 font-bold font-mono">{claim.status}</span>
                   <a 
-                    href={`https://testnet.bithomp.com/explorer/${claim.hash}`}
+                    href={claim.recipient.startsWith('0x') ? `https://explorer.realtimelog.org/tx/${claim.hash}` : `https://testnet.bithomp.com/explorer/${claim.hash}`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-cyan-400 hover:underline flex items-center gap-0.5 font-bold"
