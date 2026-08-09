@@ -11,6 +11,9 @@ import XRPLPanel from './components/XRPLPanel';
 import FuelCycleTracker from './components/FuelCycleTracker';
 import RadiationMonitor from './components/RadiationMonitor';
 import ZrtFaucetPanel from './components/ZrtFaucetPanel';
+import LinkedInProofCard from './components/LinkedInProofCard';
+import EVMContractInspector from './components/EVMContractInspector';
+import RecruiterCodeShowcase from './components/RecruiterCodeShowcase';
 
 import { xrplService } from './services/xrplService';
 import { soundEffects } from './services/audioService';
@@ -216,8 +219,13 @@ export default function App() {
       </div>
 
       {activeDashboard === 'FAUCET' ? (
-        /* 1. ZRT Faucet Dashboard */
-        <ZrtFaucetPanel />
+        /* 1. ZRT Faucet & Web3 LinkedIn Showcase Dashboard */
+        <>
+          <ZrtFaucetPanel />
+          <LinkedInProofCard walletInfo={walletInfo} />
+          <EVMContractInspector />
+          <RecruiterCodeShowcase />
+        </>
       ) : (
         /* 2. Uranium Intelligence Operations Dashboard */
         <>
