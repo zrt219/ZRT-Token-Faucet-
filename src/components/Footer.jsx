@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Github, Twitter, Disc, Globe, BookOpen, Award, Briefcase, Cpu } from 'lucide-react';
+import { ExternalLink, Disc, Globe, BookOpen, Award, Briefcase, Cpu } from 'lucide-react';
 
 export default function Footer() {
   return (

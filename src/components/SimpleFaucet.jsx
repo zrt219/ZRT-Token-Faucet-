@@ -3,10 +3,8 @@ import {
   Copy, 
   CheckCircle2, 
   ArrowRight, 
-  MessageSquare, 
   Info,
   ExternalLink,
-  Github,
   Globe
 } from 'lucide-react';
 import { faucetService } from '../services/faucetService';
@@ -22,12 +20,39 @@ export default function SimpleFaucet() {
   const [isConnectingMM, setIsConnectingMM] = useState(false);
   const [metaMaskAddr, setMetaMaskAddr] = useState('');
   const [copied, setCopied] = useState(false);
-  const [status, setStatus] = useState(null); // { type: 'success' | 'error', msg: '', txHash: '' }
+  const [status, setStatus] = useState(null); // { type: 'success' | 'error', msg: '' }
 
   const isValidAddress = /^0x[a-fA-F0-9]{40}$/.test(recipient.trim());
 
+  // Setup account service & window.ethereum listeners
   useEffect(() => {
     faucetService.setupFaucetAccounts();
+
+    if (typeof window.ethereum !== 'undefined') {
+      const handleAccountsChanged = (accounts) => {
+        if (accounts.length > 0) {
+          setMetaMaskAddr(accounts[0]);
+          setRecipient(accounts[0]);
+        } else {
+          setMetaMaskAddr('');
+          setRecipient('');
+        }
+      };
+
+      const handleChainChanged = () => {
+        window.location.reload();
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+
+      return () => {
+        if (window.ethereum.removeListener) {
+          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+          window.ethereum.removeListener('chainChanged', handleChainChanged);
+        }
+      };
+    }
   }, []);
 
   const handleConnectWallet = async () => {
@@ -61,7 +86,7 @@ export default function SimpleFaucet() {
     if (result && result.status === 'SUCCESS') {
       setStatus({ 
         type: 'success', 
-        msg: `Transaction Broadcast! Claim of ${claimAmount} XRP validated on-chain.`
+        msg: `Transaction Broadcast! Claim of ${claimAmount} XRP validated on-chain.` 
       });
       confetti({
         particleCount: 150,
@@ -88,14 +113,14 @@ export default function SimpleFaucet() {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '880px', margin: '32px auto 0 auto', padding: '0 16px', fontFamily: 'Inter, -apple-system, sans-serif' }}>
+    <div style={{ width: '100%', maxWidth: '880px', margin: '40px auto 0 auto', padding: '0 16px', fontFamily: 'Inter, -apple-system, sans-serif' }}>
       
       {/* Title & Subtitle */}
       <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto 40px auto' }}>
-        <span style={{ fontSize: '10px', letterSpacing: '2px', color: '#c084fc', fontWeight: '700', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-          ZRT XRP FAUCET & DISPENSER
+        <span style={{ fontSize: '10px', letterSpacing: '2px', color: '#c084fc', fontWeight: '700', textTransform: 'uppercase', display: 'block', marginBottom: '10px' }}>
+          XRPL EVM FAUCET
         </span>
-        <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#ffffff', lineHeight: '1.25', letterSpacing: '-0.5px', marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '42px', fontWeight: '800', color: '#ffffff', lineHeight: '1.2', letterSpacing: '-0.8px', marginBottom: '14px' }}>
           Get test XRP, to your wallet <span style={{ background: 'linear-gradient(to right, #c084fc, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>in seconds.</span>
         </h1>
         <p style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.6', margin: '0 auto' }}>
@@ -108,21 +133,21 @@ export default function SimpleFaucet() {
         backgroundColor: '#0a0c10', 
         border: '1px solid #1e293b', 
         borderRadius: '20px', 
-        padding: '32px', 
+        padding: '36px', 
         display: 'flex', 
         flexDirection: 'row', 
         flexWrap: 'wrap', 
-        gap: '32px', 
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+        gap: '36px', 
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
         alignItems: 'stretch'
       }}>
         
         {/* Left Steps Column (Step 1 & Step 2) */}
-        <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '28px', minWidth: '280px' }}>
+        <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '32px', minWidth: '280px' }}>
           
           {/* Step 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'flex', itemsCenter: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
               <div>
                 <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', display: 'block' }}>STEP 1</span>
                 <h3 style={{ fontSize: '12px', fontWeight: '700', color: '#f1f5f9', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Connect or paste an address</h3>
@@ -136,7 +161,7 @@ export default function SimpleFaucet() {
                 style={{
                   backgroundColor: '#030712',
                   border: '1px solid #334155',
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   borderRadius: '20px',
                   display: 'flex',
                   alignItems: 'center',
@@ -160,10 +185,10 @@ export default function SimpleFaucet() {
               backgroundColor: '#030712', 
               border: '1px solid #334155', 
               borderRadius: '12px', 
-              padding: '12px 14px',
+              padding: '14px 16px',
               transition: 'border 0.2s'
             }}>
-              <span style={{ color: '#64748b', marginRight: '8px', fontFamily: 'monospace', fontSize: '13px', fontWeight: 'bold' }}>&gt;</span>
+              <span style={{ color: '#64748b', marginRight: '10px', fontFamily: 'monospace', fontSize: '14px', fontWeight: 'bold' }}>&gt;</span>
               <input
                 type="text"
                 value={recipient}
@@ -196,7 +221,7 @@ export default function SimpleFaucet() {
           </div>
 
           {/* Step 2 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
               <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', display: 'block' }}>STEP 2</span>
               <h3 style={{ fontSize: '12px', fontWeight: '700', color: '#f1f5f9', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Pick a network</h3>
@@ -252,41 +277,6 @@ export default function SimpleFaucet() {
             </div>
           </div>
 
-          {/* Official Resources & Creator Links */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', paddingTop: '12px', borderTop: '1px solid #1e293b' }}>
-            <a 
-              href="https://explorer.testnet.xrplevm.org/" 
-              target="_blank" 
-              rel="noreferrer"
-              style={{ padding: '6px 12px', backgroundColor: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.4)', borderRadius: '20px', color: '#c084fc', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
-            >
-              <ExternalLink style={{ width: '10px', height: '10px' }} />
-              <span>XRPL EVM Explorer</span>
-            </a>
-
-            <a 
-              href="https://xrpl.org/" 
-              target="_blank" 
-              rel="noreferrer"
-              style={{ padding: '6px 12px', backgroundColor: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.4)', borderRadius: '20px', color: '#06b6d4', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
-            >
-              <Globe style={{ width: '10px', height: '10px' }} />
-              <span>Official XRPL.org</span>
-            </a>
-
-            <a 
-              href="https://x.com/zrt_219" 
-              target="_blank" 
-              rel="noreferrer"
-              style={{ padding: '6px 12px', backgroundColor: '#030712', border: '1px solid #1e293b', borderRadius: '20px', color: '#94a3b8', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
-            >
-              <svg style={{ width: '10px', height: '10px', fill: 'currentColor' }} viewBox="0 0 24 24">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-              <span>@zrt_219</span>
-            </a>
-          </div>
-
         </div>
 
         {/* Right Claim Summary Card */}
@@ -303,11 +293,11 @@ export default function SimpleFaucet() {
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', borderBottom: '1px solid #1e293b', paddingBottom: '12px' }}>
-              <span style={{ fontSize: '36px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.5px' }}>{claimAmount}</span>
+              <span style={{ fontSize: '38px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.5px' }}>{claimAmount}</span>
               <span style={{ fontSize: '13px', fontWeight: '600', color: '#64748b', fontFamily: 'monospace' }}>XRP</span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px', fontFamily: 'monospace' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px', fontFamily: 'monospace' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #0f172a', paddingBottom: '6px' }}>
                 <span style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Network</span>
                 <span style={{ color: '#f1f5f9', fontWeight: 'bold', textTransform: 'capitalize' }}>{selectedNetwork}</span>
@@ -363,7 +353,7 @@ export default function SimpleFaucet() {
               disabled={isSending || !isValidAddress}
               style={{
                 width: '100%',
-                padding: '14px 16px',
+                padding: '16px',
                 backgroundColor: (isValidAddress && !isSending) ? '#7c3aed' : '#4c1d95',
                 color: '#ffffff',
                 fontWeight: '700',
@@ -378,7 +368,7 @@ export default function SimpleFaucet() {
                 transition: 'all 0.2s'
               }}
             >
-              {isSending ? 'REQUESTING FROM BRIDGE...' : `Request ${claimAmount} XRP`}
+              {isSending ? 'REQUESTING FROM BRIDGE...' : `REQUEST ${claimAmount} XRP`}
             </button>
           </div>
 
@@ -386,15 +376,11 @@ export default function SimpleFaucet() {
 
       </div>
 
-      {/* Network Metadata & Official Docs Links */}
-      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '11px', fontFamily: 'monospace', color: '#64748b', marginTop: '20px' }}>
-        <span>Official Site: <a href="https://xrpl.org/" target="_blank" rel="noreferrer" style={{ color: '#06b6d4', textDecoration: 'none', fontWeight: 'bold' }}>xrpl.org</a></span>
-        <span>•</span>
-        <span>EVM Explorer: <a href="https://explorer.testnet.xrplevm.org/" target="_blank" rel="noreferrer" style={{ color: '#c084fc', textDecoration: 'none', fontWeight: 'bold' }}>explorer.testnet.xrplevm.org</a></span>
-        <span>•</span>
+      {/* Network Metadata Strip */}
+      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '11px', fontFamily: 'monospace', color: '#64748b', marginTop: '24px' }}>
         <span>RPC: <a href="https://rpc.testnet.xrplevm.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>rpc.testnet.xrplevm.org</a></span>
         <span>•</span>
-        <span>XRPL Explorer: <a href="https://testnet.xrpl.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>testnet.xrpl.org</a></span>
+        <span>Explorer: <a href="https://explorer.testnet.xrplevm.org/" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>explorer.testnet.xrplevm.org</a></span>
       </div>
     </div>
   );

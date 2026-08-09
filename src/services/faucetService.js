@@ -286,7 +286,7 @@ class FaucetService {
               decimals: 18
             },
             rpcUrls: ['https://rpc.testnet.xrplevm.org'],
-            blockExplorerUrls: ['https://explorer.realtimelog.org']
+            blockExplorerUrls: ['https://explorer.testnet.xrplevm.org']
           }]
         });
       } catch (addErr) {
