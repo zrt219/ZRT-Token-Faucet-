@@ -5,7 +5,10 @@ import {
   ArrowRight, 
   MessageSquare, 
   Info,
-  ExternalLink
+  ExternalLink,
+  Github,
+  Globe,
+  Twitter
 } from 'lucide-react';
 import { faucetService } from '../services/faucetService';
 import { soundEffects } from '../services/audioService';
@@ -91,7 +94,7 @@ export default function SimpleFaucet() {
       {/* Title & Subtitle */}
       <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto 40px auto' }}>
         <span style={{ fontSize: '10px', letterSpacing: '2px', color: '#c084fc', fontWeight: '700', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-          XRPL EVM FAUCET
+          ZRT XRP FAUCET & DISPENSER
         </span>
         <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#ffffff', lineHeight: '1.25', letterSpacing: '-0.5px', marginBottom: '12px' }}>
           Get test XRP, to your wallet <span style={{ background: 'linear-gradient(to right, #c084fc, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>in seconds.</span>
@@ -115,8 +118,8 @@ export default function SimpleFaucet() {
         alignItems: 'stretch'
       }}>
         
-        {/* Left Steps Column */}
-        <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '24px', minWidth: '280px' }}>
+        {/* Left Steps Column (Step 1 & Step 2) */}
+        <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '28px', minWidth: '280px' }}>
           
           {/* Step 1 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -205,7 +208,7 @@ export default function SimpleFaucet() {
                 type="button"
                 onClick={() => setSelectedNetwork('testnet')}
                 style={{
-                  padding: '12px 14px',
+                  padding: '14px 16px',
                   borderRadius: '12px',
                   border: selectedNetwork === 'testnet' ? '1px solid #a855f7' : '1px solid #1e293b',
                   backgroundColor: selectedNetwork === 'testnet' ? 'rgba(168, 85, 247, 0.15)' : '#030712',
@@ -228,7 +231,7 @@ export default function SimpleFaucet() {
                 type="button"
                 disabled
                 style={{
-                  padding: '12px 14px',
+                  padding: '14px 16px',
                   borderRadius: '12px',
                   border: '1px solid #1e293b',
                   backgroundColor: '#030712',
@@ -250,66 +253,39 @@ export default function SimpleFaucet() {
             </div>
           </div>
 
-          {/* Step 3 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div>
-              <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', display: 'block' }}>STEP 3</span>
-              <h3 style={{ fontSize: '12px', fontWeight: '700', color: '#f1f5f9', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Complete to unlock the faucet</h3>
-            </div>
+          {/* Quick Ecosystem Links */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', paddingTop: '8px', borderTop: '1px solid #1e293b' }}>
+            <a 
+              href="https://x.com/zrt_219" 
+              target="_blank" 
+              rel="noreferrer"
+              style={{ padding: '6px 12px', backgroundColor: '#030712', border: '1px solid #1e293b', borderRadius: '20px', color: '#94a3b8', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <svg style={{ width: '10px', height: '10px', fill: 'currentColor' }} viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              <span>@zrt_219</span>
+            </a>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  padding: '12px 14px',
-                  backgroundColor: '#030712',
-                  border: '1px solid #1e293b',
-                  borderRadius: '12px',
-                  color: '#cbd5e1',
-                  fontSize: '11px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  textDecoration: 'none',
-                  fontWeight: '500'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <svg style={{ width: '14px', height: '14px', fill: '#94a3b8' }} viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                  <span>Follow @Peersyst on X</span>
-                </div>
-                <ArrowRight style={{ width: '14px', height: '14px', color: '#475569' }} />
-              </a>
+            <a 
+              href="https://www.umattr.ca/" 
+              target="_blank" 
+              rel="noreferrer"
+              style={{ padding: '6px 12px', backgroundColor: '#030712', border: '1px solid #1e293b', borderRadius: '20px', color: '#94a3b8', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <Globe style={{ width: '10px', height: '10px' }} />
+              <span>Umattr Ecosystem</span>
+            </a>
 
-              <a
-                href="https://discord.com"
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  padding: '12px 14px',
-                  backgroundColor: '#030712',
-                  border: '1px solid #1e293b',
-                  borderRadius: '12px',
-                  color: '#cbd5e1',
-                  fontSize: '11px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  textDecoration: 'none',
-                  fontWeight: '500'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <MessageSquare style={{ width: '14px', height: '14px', color: '#94a3b8' }} />
-                  <span>Join our Discord</span>
-                </div>
-                <ArrowRight style={{ width: '14px', height: '14px', color: '#475569' }} />
-              </a>
-            </div>
+            <a 
+              href="https://github.com/zrt219" 
+              target="_blank" 
+              rel="noreferrer"
+              style={{ padding: '6px 12px', backgroundColor: '#030712', border: '1px solid #1e293b', borderRadius: '20px', color: '#94a3b8', fontSize: '10px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <Github style={{ width: '10px', height: '10px' }} />
+              <span>github.com/zrt219</span>
+            </a>
           </div>
 
         </div>
@@ -323,7 +299,7 @@ export default function SimpleFaucet() {
           padding: '24px', 
           display: 'flex', 
           flexDirection: 'column', 
-          justifyContent: 'space-between',
+          justify: 'space-between',
           gap: '24px'
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -399,11 +375,13 @@ export default function SimpleFaucet() {
 
       </div>
 
-      {/* Network Metadata */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '11px', fontFamily: 'monospace', color: '#64748b', marginTop: '20px' }}>
-        <span>RPC: <a href="https://rpc.testnet.xrplevm.org" style={{ color: '#94a3b8', textDecoration: 'none' }}>rpc.testnet.xrplevm.org</a></span>
+      {/* Real Network Resources & Explorer Links */}
+      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '11px', fontFamily: 'monospace', color: '#64748b', marginTop: '20px' }}>
+        <span>RPC: <a href="https://rpc.testnet.xrplevm.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>rpc.testnet.xrplevm.org</a></span>
         <span>•</span>
-        <span>Explorer: <a href="https://explorer.realtimelog.org" style={{ color: '#94a3b8', textDecoration: 'none' }}>explorer.testnet.xrplevm.org</a></span>
+        <span>EVM Explorer: <a href="https://explorer.testnet.xrplevm.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>explorer.testnet.xrplevm.org</a></span>
+        <span>•</span>
+        <span>XRPL Explorer: <a href="https://testnet.xrpl.org" target="_blank" rel="noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>testnet.xrpl.org</a></span>
       </div>
     </div>
   );
