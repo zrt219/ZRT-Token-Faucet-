@@ -3,7 +3,6 @@ import {
   Copy, 
   CheckCircle2, 
   ArrowRight, 
-  ExternalLink, 
   Lock,
   Wallet,
   MessageSquare,
@@ -93,7 +92,7 @@ export default function SimpleFaucet() {
   return (
     <main className="w-full max-w-4xl mx-auto px-4 mt-8 font-sans">
       {/* Title block */}
-      <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
+      <div className="text-center max-w-2xl mx-auto mb-10 flex flex-col gap-3">
         <span className="text-[10px] tracking-widest font-mono text-purple-400 font-bold uppercase block">
           XRPL EVM FAUCET
         </span>
@@ -106,15 +105,15 @@ export default function SimpleFaucet() {
       </div>
 
       {/* Main Faucet Box */}
-      <div className="bg-[#0b0c10] border border-slate-900 rounded-2xl p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 shadow-2xl relative overflow-hidden">
+      <div className="bg-[#0b0c10] border border-slate-900 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 shadow-2xl relative overflow-hidden items-stretch">
         
         {/* Left Side: Steps (Steps 1, 2, 3) */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="flex-1 flex flex-col gap-6 min-w-0">
           
           {/* Step 1 */}
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col gap-0.5">
                 <span className="text-[9px] text-slate-500 font-mono tracking-widest block uppercase">STEP 1</span>
                 <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Connect or paste an address</h3>
               </div>
@@ -124,7 +123,7 @@ export default function SimpleFaucet() {
                 type="button"
                 onClick={handleConnectWallet}
                 disabled={isConnectingMM}
-                className="bg-slate-950 border border-slate-800/80 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[10px] font-mono text-slate-300 hover:border-purple-500/60 hover:text-white transition-all cursor-pointer"
+                className="bg-slate-950 border border-slate-800/80 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[10px] font-mono text-slate-300 hover:border-purple-500/60 hover:text-white transition-all cursor-pointer shrink-0"
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${metaMaskAddr ? 'bg-emerald-400' : 'bg-rose-500'} animate-pulse`}></span>
                 <span>{metaMaskAddr ? `${metaMaskAddr.slice(0, 6)}...${metaMaskAddr.slice(-4)}` : 'Connect Wallet'}</span>
@@ -132,7 +131,7 @@ export default function SimpleFaucet() {
             </div>
 
             {/* Input Address Field */}
-            <div className="relative flex items-center bg-slate-950 border border-slate-900 focus-within:border-purple-500/80 rounded-xl p-3 transition-all">
+            <div className="relative flex items-center bg-slate-950 border border-slate-900 focus-within:border-purple-500/80 rounded-xl p-3.5 transition-all">
               <span className="text-slate-500 mr-2 shrink-0 font-mono text-xs font-bold">&gt;</span>
               <input
                 type="text"
@@ -157,8 +156,8 @@ export default function SimpleFaucet() {
           </div>
 
           {/* Step 2 */}
-          <div className="space-y-2.5">
-            <div className="space-y-0.5">
+          <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-0.5">
               <span className="text-[9px] text-slate-500 font-mono tracking-widest block uppercase">STEP 2</span>
               <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Pick a network</h3>
             </div>
@@ -167,7 +166,7 @@ export default function SimpleFaucet() {
               <button
                 type="button"
                 onClick={() => setSelectedNetwork('testnet')}
-                className={`py-3 px-4 rounded-xl border font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                className={`py-3.5 px-4 rounded-xl border font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
                   selectedNetwork === 'testnet'
                     ? 'bg-purple-950/20 border-purple-500 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.15)]'
                     : 'bg-slate-950 border-slate-900 text-slate-500 hover:text-slate-300'
@@ -180,7 +179,7 @@ export default function SimpleFaucet() {
               <button
                 type="button"
                 disabled
-                className="py-3 px-4 rounded-xl border border-slate-900/50 bg-slate-950/40 text-slate-700 flex items-center justify-center gap-1.5 cursor-not-allowed font-bold"
+                className="py-3.5 px-4 rounded-xl border border-slate-900/50 bg-slate-950/40 text-slate-700 flex items-center justify-center gap-1.5 cursor-not-allowed font-bold"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
                 Devnet <span className="opacity-40 text-[10px]">100 XRP</span>
@@ -189,8 +188,8 @@ export default function SimpleFaucet() {
           </div>
 
           {/* Step 3 */}
-          <div className="space-y-2.5">
-            <div className="space-y-0.5">
+          <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-0.5">
               <span className="text-[9px] text-slate-500 font-mono tracking-widest block uppercase">STEP 3</span>
               <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Complete to unlock the faucet</h3>
             </div>
@@ -229,8 +228,8 @@ export default function SimpleFaucet() {
         </div>
 
         {/* Right Side: Claim Summary Card */}
-        <div className="lg:col-span-5 flex flex-col justify-between bg-slate-950 border border-slate-900 rounded-2xl p-5 md:p-6 space-y-6">
-          <div className="space-y-4">
+        <div className="w-full md:w-[320px] shrink-0 flex flex-col justify-between bg-slate-950 border border-slate-900 rounded-2xl p-5 md:p-6 gap-6">
+          <div className="flex flex-col gap-4">
             <div className="flex items-baseline gap-1 border-b border-slate-900 pb-3">
               <span className="text-3xl md:text-4xl font-bold text-white tracking-tight">{claimAmount}</span>
               <span className="text-sm font-semibold text-slate-500 font-mono">XRP</span>
@@ -258,12 +257,12 @@ export default function SimpleFaucet() {
             </table>
           </div>
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {status && (
               <div className={`p-2.5 rounded-xl border flex items-start gap-2 ${
                 status.type === 'success' ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-300' : 'bg-rose-950/30 border-rose-500/30 text-rose-300'
               }`}>
-                {status.type === 'success' ? <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /> : <Info className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />}
+                <Info className={`w-4 h-4 shrink-0 mt-0.5 ${status.type === 'success' ? 'text-emerald-400' : 'text-rose-400'}`} />
                 <p className="text-[10px] font-mono leading-relaxed">{status.msg}</p>
               </div>
             )}
@@ -271,7 +270,7 @@ export default function SimpleFaucet() {
             <button
               onClick={handleRequestTokens}
               disabled={isSending || !isValidAddress}
-              className={`w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer shadow-lg hover:shadow-purple-500/20 transition-all ${
+              className={`w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer shadow-lg hover:shadow-purple-500/20 transition-all ${
                 (!isValidAddress || isSending) ? 'opacity-50 cursor-not-allowed bg-purple-900/60' : ''
               }`}
             >
